@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css?family=Unbuntu');
 
 *{
     margin: 0;
     padding: 0;
     list-style: none;
     box-sizing: border-box;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: fantasy; 
 }
 
 

@@ -1,11 +1,11 @@
-class Review {
+class Game {
     constructor(attributes) {
-        let whitelist = ["game_id", "stars", "active"]
+        let whitelist = ["name", "genre", "release_date", "rating"]
         whitelist.forEach(attr => this[attr] = attributes[attr])
     }
 
     static container(){
-        return this.c ||= document.querySelector("#reviewContainer")
+        return this.c ||= document.querySelector("#gameContainer")
     }
 
     static all(){
@@ -22,7 +22,7 @@ class Review {
                     return res.text().then(error => Promise.reject(error))
                 }
             })
-            .then(reviewArray => {
+            .then(gameArray => {
                 debugger
             })
     }
