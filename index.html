@@ -1,27 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Library</title>
 </head>
-<body>
-    <div class="wrapper">
-        <div class="mega_menu">
-            <ul>
-                <li><a href="#">games</a>
-                    <div class="sub_menu">
-                        <div class="col">
-                            <img src="https://cnet3.cbsistatic.com/img/D-WTJumFMH7557MPPcNEJPee59E=/2020/08/13/37136d82-9e71-4642-a4c1-4d5e75da9583/ps5-v-xbox.png"  alt="video_game">
-                            
-                        </div>
-                    </div>
-                </li>
-                <li><a href="#">reviews</a></li>
-            </ul>
+<body class="antialiased bg-blue-700 text-gray-900 font-sans p-6">
+    <h1>Game Library</h1>
+    <div class="container mx-auto">
+        <div id="gamesContainer" class="flex flex-wrap -mx-4">
         </div>
     </div>
+    
     <script src="js/models.js"></script>
     <script src="js/listeners.js"></script>
 </body>
