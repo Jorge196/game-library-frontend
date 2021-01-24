@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../game-library-api"
+		},
+		{
+			"path": ".."
+		}
+	],
+	"remoteAuthority": "wsl+Ubuntu",
+	"settings": {}
+}

@@ -44,8 +44,23 @@ class Game {
               
               <span class=" game-genre inline-block px-2 py-1 leading-none bg-green-300 text-orange-800 rounded-full font-semibold uppercase tracking-wide text-xs"></span>
               <h2 class="game-title mt-2 mb-2  font-bold"></h2>
-              <a href="#" class="show-more">Show Reviews</a>
-              <p data-game-id="${this.id}" class="game-reviews text-sm max-h-4 overflow-hidden transition-all ease-in-out duration-500"></p>
+              <a href="#" class="show-more">Show More</a>
+              <section id="reviewsContainer data-game-id="${this.id}" class="game-reviews text-sm max-h-4 overflow-hidden transition-all ease-in-out duration-500">
+               
+                <form id="newReview" class="flex mt-4">
+                    <input type="text" class="block flex-1 p-3" placeholder="New Review" />
+                    <button type="submit" class="block flex-none"><i class="fa fa-plus p-4 z--1 bg-green-400"></i><button>
+                </form>
+                <ul id="reviews" class="list-none">
+                    <li class="my-2 px-4 bg-green-200 grid-col-6">
+                        <a href="#" class="my-1 text-center"><i class="p-4 far fa-circle"></i></a>
+                        <span href="#" class="py-4 col-span-6">First Review</span>
+                        <a href="#" class="my-4 text-right"><i class="fa fa-pencil-alt"></i></a>
+                        <a href="#" class="my-4 text-right"><i class="fa fa-trash-alt"></i></a>
+                    </li>
+                <ul>
+              </section>
+
               
               <div class="mt-3 flex items-center">
                 <span class="text-sm font-semibold">Rated</span>&nbsp;<span class="game-rating font-bold text-xl"></span>
@@ -65,10 +80,6 @@ class Game {
         this.element.querySelector(".game-image-url").textContent = this.image_url;
         
 
-        
-
-        
-
         return this.element;
     }
 }
@@ -84,4 +95,85 @@ class Review {
         return this.c ||= document.querySelector("#reviews")
     }
 
+    static all() {
+        return this.collection ||= {};
+    }
+
+    static loadFromList(reviews, game_id) {
+        let reviewObjects = reviews.map(attrs => new Review(attrs));
+        this.all()[game_id] = reviewObjects;
+        this.active_game_id = game_id;
+        let reviewElements = reviewObjects.map(review => review.render());
+        this.container().innerHTML = "";
+        this.container().append(...reviewElements);
+    }
+
+    static create(formData) {
+        return fetch("http://localhost:3000/reviews", {
+            method: 'POST', 
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({review: formData})
+        })
+        .then(res => {
+            if (res.ok) {
+                return res.json(); 
+            } else {
+                return res.text().then(errors => Promise.reject(errors))
+            }
+        })
+        .then(reviewAttributes => {
+            let review = new Review(reviewAttributes)
+            this.collection[this.active_game_id].push(review);
+            let rendered = review.render();
+            this.container().appendChild(rendered);
+            return review;
+        })
+        .catch(error => new FlashMessage({type: 'error', message: err}) )
+    }
+
+/* <ul id="reviews" class="list-none">
+    <li class="my-2 px-4 bg-green-200 grid-col-6">
+        <a href="#" class="my-1 text-center"><i class="p-4 far fa-circle"></i></a>
+        <span href="#" class="py-4 col-span-6">First Review</span>
+        <a href="#" class="my-4 text-right"><i class="fa fa-pencil-alt"></i></a>
+        <a href="#" class="my-4 text-right"><i class="fa fa-trash-alt"></i></a>
+    </li>
+<ul> */
+    render() {
+        this.element ||= document.createElement('li');
+        this.element.classList.add(..."my-2 px-4 bg-green-200 grid-cols-6".split(" "));
+
+        this.completeLink = document.createElement('li');
+        this.completeLink.classList.add(..."my-text-center").split(" "); 
+         
+
+    }
+
+}
+
+
+class FlashMessage {
+    constructor({message, type}){
+        this.message = message;
+        this.error = type == "error";
+        this.render()
+
+    }
+    static container(){
+        this.c ||= document.querySelector('#flash')
+    }
+
+    render(){
+        this.container().textContent = this.message; 
+        this.toggleDisplay();
+        setTimeout(() => this.toggleDisplay(), 5000);
+    }
+
+    toggleDisplay() {
+        this.container().classList.toggle('opacity-0');
+        this.container().classList.toggle(this.error ? 'bg-red-700' : 'bg-yellow-400')
+    }
 }
