@@ -20,11 +20,30 @@ document.addEventListener('DOMContentLoaded', function(e) {
 })
 
 document.addEventListener('submit', function(e) {
-    let target = e.target;
+    let target = e.target; 
+    console.log(e.target)
     if(target.matches('#data-game-id')){
         e.preventDefault();
-        console.log('submitted newreviewform')
-
+        Review.create(target.serialize())
+        .then(() => {
+            target.reset();
+            target.querySelector('input[name="notes"]').blur();
+        });
+    } else if(target.matches('#newReview')) {
+        e.preventDefault();
+        console.log('works');
+        Review.create(target.serialize())
+          .then(() => {
+              console.log(target)
+              target.reset()
+            });
+    } else if(target.matches('.editReviewForm')) {
+        e.preventDefault();
+        let review = Review.findById(target.dataset.reviewId);
+        review.update(target.serialize())
+          .then(() => Modal.toggle())
     }
-})
+});
+
+
 
