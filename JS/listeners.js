@@ -4,15 +4,23 @@ document.addEventListener('click', function(e) {
         e.preventDefault();
         let p = target.nextElementSibling;
         if(target.textContent == "Show More") {
-            target.textContent = "Show Less"
+            // Flip the direction of showing
+            target.textContent = "Show Less";
             p.classList.replace('max-h-4', 'max-h-screen')
-        } else {
-            target.textContent = "Show More"
-            p.classList.replace('max-h-screen', 'max-h-4')
-
+        
+        } else if (target.textContent == "Show Less") {
+             // Flip the direction of showing
+             target.textContent = "Show Less";
+             p.classList.replace('max-h-screen', 'max-h-4')
+            
         }
 
+        Review.show(target.dataset.gameId);
     }
+    // if 'delete' button is clicked
+    // Review.delete();
+
+
 })
 
 document.addEventListener('DOMContentLoaded', function(e) {
@@ -31,7 +39,6 @@ document.addEventListener('submit', function(e) {
         });
     } else if(target.matches('#newReview')) {
         e.preventDefault();
-        console.log('works');
         Review.create(target.serialize())
           .then(() => {
               console.log(target)

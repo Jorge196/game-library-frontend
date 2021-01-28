@@ -64,19 +64,21 @@ class Game {
               
               <span class=" game-genre inline-block px-2 py-1 leading-none bg-green-300 text-orange-800 rounded-full font-semibold uppercase tracking-wide text-xs"></span>
               <h2 class="game-title mt-2 mb-2  font-bold"></h2>
-              <a href="#" class="show-more">Show More</a>
-              <section id="reviewsContainer" data-game-id="${this.id}" class="game-reviews text-sm max-h-4 overflow-hidden transition-all ease-in-out duration-500">
+              <a href="#" data-game-id="${this.id}" class="show-more">Show More</a>
+              <section 
+                id="reviewsContainer" 
+                data-game-id="${this.id}" 
+                class="game-reviews text-sm max-h-4 overflow-hidden transition-all ease-in-out duration-500">
                
-                <form id="newReview" class="flex mt-4">
-                    <input type="hidden" name="game_id" value="${this.id}"/> 
-                    <input type="text" class="block flex-1 p-3" name="notes" placeholder="New Review" />
-                    <button type="submit" class="block flex-none"><i class="fa fa-plus p-4 z--1 bg-green-400"></i></button>
-                </form>
-                <ul id="reviews-${this.id}" class="list-none">
-                    
-                <ul>
-              </section>
-
+                    <form id="newReview" class="flex mt-4">
+                        <input type="hidden" name="game_id" value="${this.id}"/> 
+                        <input type="text" class="block flex-1 p-3" name="notes" placeholder="New Review" />
+                        <button type="submit" class="block flex-none"><i class="fa fa-plus p-4 z--1 bg-green-400"></i></button>
+                    </form>
+                    <div id="reviewSection-${this.id}" style="height: 125px; overflow-y: scroll;" class="">
+                        <ul id="reviews-${this.id}" class="list-none"></ul> 
+                    </div>
+              </section>     
               
               <div class="mt-3 flex items-center">
                 <span class="text-sm font-semibold">Rated</span>&nbsp;<span class="game-rating font-bold text-xl"></span>
@@ -103,7 +105,7 @@ class Game {
 
 class Review {
     constructor(attributes){
-        let whitelist = ["game_id", "stars", "notes", "id"]
+        let whitelist = ["game_id", "notes", "id"]
         whitelist.forEach(attr => this[attr] = attributes[attr])
     }
 
@@ -116,7 +118,7 @@ class Review {
     }
 
     static findById(id) {
-        return this.collection()[Review.game_id].find(review => review.id == id); //might need to change (Review.game_id) doesn't really go with my code. 
+        return this.collection()[Review.game_id].find(review => review.id == id); 
     }
     
 
@@ -148,61 +150,56 @@ class Review {
             }
         })
         .then(reviewData => {
-            let review = new Review(reviewData)
+            let review = new Review(reviewData)      
             this.collection[reviewData.game_id] ||= []
-            this.collection[reviewData.game_id].push(review);
+            console.log(this.collection[reviewData.game_id])
+            this.collection.push(review);
             let rendered = review.render();
-            this.container(reviewData.game_id).appendChild(rendered); //why is the review going into the same container even if game different.
+            this.container(reviewData.game_id).appendChild(rendered);
             return review;
         })
         .catch(error => {
+            
             console.error(error)
             new FlashMessage({type: 'error', message: error})
         })
+
     }
 
-    toggleComplete() {
-        fetch(`http://localhost:3000/reviews/${this.id}`, {
-          method: 'PUT', 
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          }, 
-          body: JSON.stringify({
-            task: { completed: !this.completed }
-          })
-        })
-          .then(res => {
-            if(res.ok) {
-              return res.json() 
-            } else {
-              return res.text().then(error => Promise.reject(error)) 
+    static show(game_id){
+        return fetch(`http://localhost:3000/games/${game_id}`, {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             }
-          })
-          .then(reviewAttributes => {
-            Object.keys(reviewAttributes).forEach(attr => this[attr] = reviewAttributes[attr]);
-            this.render();
-          })
-          .catch(error => new FlashMessage({type: 'error', message: error}))
-      }
-    
-    
-
-/* <ul id="reviews" class="list-none">
-    <li class="my-2 px-4 bg-green-200 grid-col-6">
-        <a href="#" class="my-1 text-center"><i class="p-4 far fa-circle"></i></a>
-        <span href="#" class="py-4 col-span-6">First Review</span>
-        <a href="#" class="my-4 text-right"><i class="fa fa-pencil-alt"></i></a>
-        <a href="#" class="my-4 text-right"><i class="fa fa-trash-alt"></i></a>
-    </li>
-<ul> */
+        })
+        .then(res => {
+            if (res.ok) {
+                return res.json(); 
+            } else {
+                return res.text().then(errors => Promise.reject(errors))
+            }
+        })
+        .then(reviewData => {
+            console.log(reviewData);
+            this.collection = reviewData.reviewsAttributes.map(review => new Review(review))
+            let renderList = this.collection.map(review => review.render())
+            console.log(renderList);
+            this.container(game_id).append(...renderList);
+            //return this.collection
+            console.log(...renderList);
+            
+            console.log(this.container(game_id));
+        })
+    }
     render() {
         this.element ||= document.createElement('li');
         this.element.classList.set("my-2 px-4 bg-green-200 grid grid-cols-8"); 
     
         
         this.notesSpan ||= document.createElement('span');
-        this.notesSpan.classList.add(..."py-4 col-span-6".split(" "));
+        this.notesSpan.classList.set("py-4 col-span-6");
         this.notesSpan.textContent = this.notes;
 
         this.editLink ||= document.createElement('a')
@@ -215,7 +212,7 @@ class Review {
 
         this.element.append(this.notesSpan, this.editLink, this.deleteLink);
 
-        return this.element
+        return this.element;
     }
 
    
