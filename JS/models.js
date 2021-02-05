@@ -69,7 +69,7 @@ class Game {
                 data-game-id="${this.id}" 
                 class="game-reviews text-sm max-h-4 overflow-hidden transition-all ease-in-out duration-500">
                
-                    <form id="newReviewForm" class="flex mt-4">
+                    <form id="newReview" class="flex mt-4">
                         <input type="hidden" name="game_id" value="${this.id}"/> 
                         <input type="text" class="block flex-1 p-3" name="notes" placeholder="New Review" />
                         <button type="submit" class="block flex-none"><i class="fa fa-plus p-4 z--1 bg-green-400"></i></button>
@@ -189,6 +189,10 @@ class Review {
             let renderList = this.collection.map(review => review.render())
             this.container(game_id).append(...renderList);
         })
+    }
+
+    static clear(game_id) {
+        this.container(game_id).innerHTML = ''
     }
 
     edit() {
