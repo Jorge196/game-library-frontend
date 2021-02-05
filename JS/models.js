@@ -9,7 +9,6 @@ class Game {
     }
 
     static all() {
-        console.log(this);
         return fetch("http://localhost:3000/games", {
             headers: {
                 "Accept": "application/json",
@@ -70,7 +69,7 @@ class Game {
                 data-game-id="${this.id}" 
                 class="game-reviews text-sm max-h-4 overflow-hidden transition-all ease-in-out duration-500">
                
-                    <form id="newReview" class="flex mt-4">
+                    <form id="newReviewForm" class="flex mt-4">
                         <input type="hidden" name="game_id" value="${this.id}"/> 
                         <input type="text" class="block flex-1 p-3" name="notes" placeholder="New Review" />
                         <button type="submit" class="block flex-none"><i class="fa fa-plus p-4 z--1 bg-green-400"></i></button>
@@ -105,12 +104,12 @@ class Game {
 
 class Review {
     constructor(attributes){
-        let whitelist = ["game_id", "notes", "id"]
-        whitelist.forEach(attr => this[attr] = attributes[attr])
+        let whitelist = ["game_id", "notes", "id"];
+        whitelist.forEach(attr => this[attr] = attributes[attr]);
     }
 
     static container(game_id) {
-        return document.querySelector(`#reviews-${game_id}`)
+        return document.querySelector(`#reviews-${game_id}`);
     }
 
     static collection() {
@@ -118,12 +117,16 @@ class Review {
     }
 
     static findById(id) {
-        return this.collection()[Review.game_id].find(review => review.id == id); 
+        this.collection.forEach(review => {
+            if(review.id === id){
+                return review;
+            }
+        }); 
     }
     
 
     static loadByGame(id, reviewsAttributes) {
-        Review.game_id = id;
+        //Review.game_id = id;
         let reviews = reviewsAttributes.map(reviewAttributes => new Review(reviewAttributes));
         this.collection()[id] = reviews;
         let rendered = reviews.map(review => review.render())
@@ -182,16 +185,85 @@ class Review {
             }
         })
         .then(reviewData => {
-            console.log(reviewData);
             this.collection = reviewData.reviewsAttributes.map(review => new Review(review))
             let renderList = this.collection.map(review => review.render())
-            console.log(renderList);
             this.container(game_id).append(...renderList);
-            //return this.collection
-            console.log(...renderList);
-            
-            console.log(this.container(game_id));
         })
+    }
+
+    edit() {
+        this.editForm ||= document.createElement('form');
+        this.editForm.classList.set("reviewEditForm");
+        this.editForm.dataset.reviewId = this.id;
+        this.editForm.innerHTML =`
+        <form class="editReviewForm" data-review-id="${this.id}">
+            <fieldset class="my-2">
+                <label for="notes" class="block w-full uppercase">Review</label>
+                <textarea 
+                    id="notes" 
+                    name="notes" 
+                    class="w-full border-2 rounded p-2 focus:outline-none focus:ring focus:border-blue-300 cursor-pointer"
+                ></textarea>
+            </fieldset>
+            <input 
+                type="submit"  
+                class="w-full block py-3 bg-green-400 hover:bg-green-500 transition duration-200 uppercase font-semibold cursor-pointer"
+                value="Save Review"
+            />
+        </form>
+        `
+        this.editForm.querySelector('#notes').value = this.notes || '';
+        return this.editForm;
+    }
+
+    update(formData) {
+        return fetch(`http://localhost:3000/reviews/${this.id}`, {
+            method: "PUT", 
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({review: formData})
+        })
+        .then(res => {
+            if(res.ok) {
+                return res.json()
+            } else{
+                return res.text().then(error => Promise.reject(error))
+            }
+        })
+        .then((reviewAttributes) => {
+           Object.keys(reviewAttributes).forEach(attr => this[attr] = reviewAttributes[attr])
+           this.render();
+           new FlashMessage({type: 'success', message: 'Review updated successfully'});
+        })
+        .catch(error => new FlashMessage({type: 'error', message: error}))
+
+    }
+
+    delete() {
+        return fetch(`http://localhost:3000/reviews/${this.id}`, {
+            method: "DELETE", 
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => {
+            if(res.ok) {
+                return res.json()
+            } else{
+                return res.text().then(error => Promise.reject(error))
+            }
+        })
+        .then(({id}) => {
+            let index = Review.collection()[Review.game_id].findIndex(review => review.id == id)
+            Review.collection().splice(index, 1);
+            this.element.remove();
+            return this;
+        })
+        .catch(error => new FlashMessage({type: 'error', message: error}))
+
     }
     render() {
         this.element ||= document.createElement('li');
@@ -203,12 +275,12 @@ class Review {
         this.notesSpan.textContent = this.notes;
 
         this.editLink ||= document.createElement('a')
-        this.editLink.classList.add(..."my-1 text-right".split(" "));
-        this.editLink.innerHTML = `<i class="p-4 fa fa-pencil-alt"></i>`;
+        this.editLink.classList.set("my-1 text-right");
+        this.editLink.innerHTML = `<i class="editReview p-4 fa fa-pencil-alt cursor-pointer" data-review-id="${this.id}"></i>`;
 
         this.deleteLink ||= document.createElement('a'); 
-        this.deleteLink.classList.add(..."my-1 text-right".split(" "));
-        this.deleteLink.innerHTML = `<i class="p-4 fa fa-trash-alt"></i>`;
+        this.deleteLink.classList.set("my-1 text-right");
+        this.deleteLink.innerHTML = `<i class="deleteReview p-4 fa fa-trash-alt p-4 cursor-pointer" data-review-id="${this.id}"></i>`;
 
         this.element.append(this.notesSpan, this.editLink, this.deleteLink);
 
@@ -242,3 +314,7 @@ class FlashMessage {
         FlashMessage.container().classList.toggle('opacity-0');
     }
 }
+
+
+
+
