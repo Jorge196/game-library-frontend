@@ -1,8 +1,7 @@
 document.addEventListener('click', function(e) {
-    e.preventDefault();
-
     let target = e.target;
     if(target.matches('.show-more')) {
+        e.preventDefault();
         let p = target.nextElementSibling;
         if(target.textContent == "Show More") {
             Review.show(target.dataset.gameId);
@@ -18,14 +17,13 @@ document.addEventListener('click', function(e) {
         // Show all the reviews
         
     } else if (target.matches(".editReview")) {
-        let review = Review.findById(parseInt(target.dataset.reviewId, 10));
-
-        console.log(review);
-        // Modal.populate({title: "Edit Review", content: review.edit()})
+        console.log(Review.collection);
+        let review = findReviewById(Review.collection, target.dataset.reviewId);
+        Modal.populate({title: "Edit Review", content: review.edit()})
         Modal.toggle()   
     } else if (target.matches(".deleteReview")) {
         if (confirm("Are you sure you want to delete this review?")) {
-            let review = Review.findById(target.dataset.reviewId);
+            let review = findReviewById(Review.collection, target.dataset.reviewId);
             review.delete();
         }
     }  
@@ -36,21 +34,27 @@ document.addEventListener('DOMContentLoaded', function(e) {
     Modal.init();
 })
 
+function findReviewById(collection, id) {
+    collection.forEach(review => {
+        if(review.id === id){
+            return review;
+        }
+    }); 
+}
+
 document.addEventListener('submit', function(e) {
     let target = e.target; 
-    console.log(e.target)
     if(target.matches('#newReview')) {
         e.preventDefault();
         Review.create(target.serialize())
           .then(() => {
-              console.log(target)
-              target.reset()
+              target.reset();
             });
     } else if(target.matches('.editReviewForm')) {
         e.preventDefault();
-        let review = Review.findById(target.dataset.reviewId);
+        let review = findReviewById(target.dataset.reviewId);
         review.update(target.serialize())
-            .then(() => Modal.toggle())
+            .then(() => Modal.toggle());
     }
 });
 

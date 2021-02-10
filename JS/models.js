@@ -115,23 +115,14 @@ class Review {
     static collection() {
         return this.coll ||= {};
     }
-
-    static findById(id) {
-        this.collection.forEach(review => {
-            if(review.id === id){
-                return review;
-            }
-        }); 
-    }
     
-
     static loadByGame(id, reviewsAttributes) {
         //Review.game_id = id;
         let reviews = reviewsAttributes.map(reviewAttributes => new Review(reviewAttributes));
-        this.collection()[id] = reviews;
+        Review.collection()[id] = reviews;
         let rendered = reviews.map(review => review.render())
-        this.container().innerHTML = "";
-        this.container().append(...rendered)
+        Review.container().innerHTML = "";
+        Review.container().append(...rendered)
     }
 
     static create(formData) {
@@ -153,17 +144,15 @@ class Review {
             }
         })
         .then(reviewData => {
-            let review = new Review(reviewData)      
+            let review = new Review(reviewData) 
+            console.log(review);   
             this.collection[reviewData.game_id] ||= []
-            console.log(this.collection[reviewData.game_id])
             this.collection.push(review);
             let rendered = review.render();
             this.container(reviewData.game_id).appendChild(rendered);
             return review;
         })
         .catch(error => {
-            
-            console.error(error)
             new FlashMessage({type: 'error', message: error})
         })
 
@@ -188,12 +177,12 @@ class Review {
             this.collection = reviewData.reviewsAttributes.map(review => new Review(review))
             let renderList = this.collection.map(review => review.render())
             this.container(game_id).append(...renderList);
-        })
+        });
     }
 
     static clear(game_id) {
         this.container(game_id).innerHTML = ''
-    }
+    };
 
     edit() {
         this.editForm ||= document.createElement('form');
@@ -245,7 +234,7 @@ class Review {
 
     }
 
-    delete() {
+    static delete(review) {
         return fetch(`http://localhost:3000/reviews/${this.id}`, {
             method: "DELETE", 
             headers: {
@@ -261,7 +250,8 @@ class Review {
             }
         })
         .then(({id}) => {
-            let index = Review.collection()[Review.game_id].findIndex(review => review.id == id)
+            let index = Review.collection.findIndex(review => review.id == id)
+            console.log(index);
             Review.collection().splice(index, 1);
             this.element.remove();
             return this;
@@ -294,8 +284,6 @@ class Review {
    
 
 }
-
-
 class FlashMessage {
     constructor({type, message}) {
       this.message = message;
