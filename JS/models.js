@@ -23,10 +23,10 @@ class Game {
                 }
             })
             .then(gameArray => {
-                this.collection = gameArray.map(attrs => new Game(attrs))
-                let renderedGames = this.collection.map(game => game.render())
+                Review.collection = gameArray.map(attrs => new Game(attrs))
+                let renderedGames = Review.collection.map(game => game.render())
                 this.container().append(...renderedGames);
-                return this.collection
+                return Review.collection
             })
     }
 
@@ -112,14 +112,23 @@ class Review {
         return document.querySelector(`#reviews-${game_id}`);
     }
 
-    static collection() {
-        return this.coll ||= {};
+    static  collection = [];
+
+    static findReviewById(id) {
+        let result = undefined;
+        Review.collection.forEach(review => {
+            if(review.id === +id){
+                result = review;
+            }
+        }); 
+        return result;
     }
+
     
     static loadByGame(id, reviewsAttributes) {
         //Review.game_id = id;
         let reviews = reviewsAttributes.map(reviewAttributes => new Review(reviewAttributes));
-        Review.collection()[id] = reviews;
+        Review.collection[id] = reviews;
         let rendered = reviews.map(review => review.render())
         Review.container().innerHTML = "";
         Review.container().append(...rendered)
@@ -146,8 +155,8 @@ class Review {
         .then(reviewData => {
             let review = new Review(reviewData) 
             console.log(review);   
-            this.collection[reviewData.game_id] ||= []
-            this.collection.push(review);
+            Review.collection[reviewData.game_id] ||= []
+            Review.collection.push(review);
             let rendered = review.render();
             this.container(reviewData.game_id).appendChild(rendered);
             return review;
@@ -174,9 +183,9 @@ class Review {
             }
         })
         .then(reviewData => {
-            this.collection = reviewData.reviewsAttributes.map(review => new Review(review))
-            let renderList = this.collection.map(review => review.render())
-            this.container(game_id).append(...renderList);
+            Review.collection = reviewData.reviewsAttributes.map(review => new Review(review))
+            let renderList = Review.collection.map(review => review.render())
+            Review.container(game_id).append(...renderList);
         });
     }
 
@@ -234,7 +243,7 @@ class Review {
 
     }
 
-    static delete(review) {
+    delete() {
         return fetch(`http://localhost:3000/reviews/${this.id}`, {
             method: "DELETE", 
             headers: {
@@ -251,8 +260,7 @@ class Review {
         })
         .then(({id}) => {
             let index = Review.collection.findIndex(review => review.id == id)
-            console.log(index);
-            Review.collection().splice(index, 1);
+            Review.collection.splice(index, 1);
             this.element.remove();
             return this;
         })

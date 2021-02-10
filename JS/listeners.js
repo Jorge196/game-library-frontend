@@ -17,30 +17,26 @@ document.addEventListener('click', function(e) {
         // Show all the reviews
         
     } else if (target.matches(".editReview")) {
-        console.log(Review.collection);
-        let review = findReviewById(Review.collection, target.dataset.reviewId);
+        let review = Review.findReviewById(+target.dataset.reviewId);
         Modal.populate({title: "Edit Review", content: review.edit()})
         Modal.toggle()   
     } else if (target.matches(".deleteReview")) {
         if (confirm("Are you sure you want to delete this review?")) {
-            let review = findReviewById(Review.collection, target.dataset.reviewId);
+            let review = Review.findReviewById(+target.dataset.reviewId);
             review.delete();
         }
     }  
 })
 
 document.addEventListener('DOMContentLoaded', function(e) {
+    user_name = prompt("What's your name?");
+    document.getElementById('Greeting').innerText = "Hello "+ user_name;
     Game.all();
     Modal.init();
 })
 
-function findReviewById(collection, id) {
-    collection.forEach(review => {
-        if(review.id === id){
-            return review;
-        }
-    }); 
-}
+
+
 
 document.addEventListener('submit', function(e) {
     let target = e.target; 
@@ -50,9 +46,9 @@ document.addEventListener('submit', function(e) {
           .then(() => {
               target.reset();
             });
-    } else if(target.matches('.editReviewForm')) {
+    } else if(target.matches('.reviewEditForm')) {
         e.preventDefault();
-        let review = findReviewById(target.dataset.reviewId);
+        let review = Review.findReviewById(target.dataset.reviewId);
         review.update(target.serialize())
             .then(() => Modal.toggle());
     }
@@ -60,3 +56,4 @@ document.addEventListener('submit', function(e) {
 
 
 
+user_name = "";
