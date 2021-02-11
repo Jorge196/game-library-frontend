@@ -23,32 +23,32 @@ class Game {
                 }
             })
             .then(gameArray => {
-                Review.collection = gameArray.map(attrs => new Game(attrs))
-                let renderedGames = Review.collection.map(game => game.render())
+                Game.collection = gameArray.map(attrs => new Game(attrs))
+                let renderedGames = Game.collection.map(game => game.render())
                 this.container().append(...renderedGames);
-                return Review.collection
+                return Game.collection
             })
     }
 
-    show(){
-        return fetch(`http://localhost:3000/games/${this.id}`, {
-            method: 'GET',
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }
-        })
-        .then(res => {
-            if(res.ok) {
-                return res.json()
-            } else {
-                return res.text().then(error => Promise.reject(error))
-            }
-        })
-        .then(({id, reviewsAttributes}) => {
-            Review.loadByGame(id, reviewsAttributes)
-        })
-    }
+    // show(){
+    //     return fetch(`http://localhost:3000/games/${this.id}`, {
+    //         method: 'GET',
+    //         headers: {
+    //             "Accept": "application/json",
+    //             "Content-Type": "application/json"
+    //         }
+    //     })
+    //     .then(res => {
+    //         if(res.ok) {
+    //             return res.json()
+    //         } else {
+    //             return res.text().then(error => Promise.reject(error))
+    //         }
+    //     })
+    //     .then(({id, reviewsAttributes}) => {
+    //         Review.loadByGame(id, reviewsAttributes)
+    //     })
+    // }
 
     render() {
         this.element ||= document.createElement('div');
@@ -115,24 +115,31 @@ class Review {
     static  collection = [];
 
     static findReviewById(id) {
-        let result = undefined;
-        Review.collection.forEach(review => {
-            if(review.id === +id){
-                result = review;
-            }
-        }); 
-        return result;
+        return Review.collection.find(review => {
+            return review.id === +id
+        });        
     }
 
-    
-    static loadByGame(id, reviewsAttributes) {
-        //Review.game_id = id;
-        let reviews = reviewsAttributes.map(reviewAttributes => new Review(reviewAttributes));
-        Review.collection[id] = reviews;
-        let rendered = reviews.map(review => review.render())
-        Review.container().innerHTML = "";
-        Review.container().append(...rendered)
+    static findOrCreateBy(reviewAttributes){
+        if(Review.findReviewById(reviewAttributes.id)){
+            return Review.findReviewById(reviewAttributes.id)
+        }else {
+            let review = new Review(reviewAttributes);
+            Review.collection.push(review);
+            return review;
+        }
     }
+
+
+    
+    // static loadByGame(id, reviewsAttributes) {
+    //     //Review.game_id = id;
+    //     let reviews = reviewsAttributes.map(reviewAttributes => new Review(reviewAttributes));
+    //     Review.collection[id] = reviews;
+    //     let rendered = reviews.map(review => review.render())
+    //     Review.container().innerHTML = "";
+    //     Review.container().append(...rendered)
+    // }
 
     static create(formData) {
         return fetch("http://localhost:3000/reviews", {
@@ -155,7 +162,6 @@ class Review {
         .then(reviewData => {
             let review = new Review(reviewData) 
             console.log(review);   
-            Review.collection[reviewData.game_id] ||= []
             Review.collection.push(review);
             let rendered = review.render();
             this.container(reviewData.game_id).appendChild(rendered);
@@ -182,9 +188,9 @@ class Review {
                 return res.text().then(errors => Promise.reject(errors))
             }
         })
-        .then(reviewData => {
-            Review.collection = reviewData.reviewsAttributes.map(review => new Review(review))
-            let renderList = Review.collection.map(review => review.render())
+        .then(gameData => {
+            let reviews = gameData.reviewsAttributes.map(review => Review.findOrCreateBy(review))
+            let renderList = reviews.map(review => review.render())
             Review.container(game_id).append(...renderList);
         });
     }
@@ -259,6 +265,7 @@ class Review {
             }
         })
         .then(({id}) => {
+            debugger
             let index = Review.collection.findIndex(review => review.id == id)
             Review.collection.splice(index, 1);
             this.element.remove();
