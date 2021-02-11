@@ -29,27 +29,7 @@ class Game {
                 return Game.collection
             })
     }
-
-    // show(){
-    //     return fetch(`http://localhost:3000/games/${this.id}`, {
-    //         method: 'GET',
-    //         headers: {
-    //             "Accept": "application/json",
-    //             "Content-Type": "application/json"
-    //         }
-    //     })
-    //     .then(res => {
-    //         if(res.ok) {
-    //             return res.json()
-    //         } else {
-    //             return res.text().then(error => Promise.reject(error))
-    //         }
-    //     })
-    //     .then(({id, reviewsAttributes}) => {
-    //         Review.loadByGame(id, reviewsAttributes)
-    //     })
-    // }
-
+    
     render() {
         this.element ||= document.createElement('div');
         this.element.className = "w-full sm:w-1/2 md:w-1/2 xl:w-1/4 p-4";
@@ -129,17 +109,6 @@ class Review {
             return review;
         }
     }
-
-
-    
-    // static loadByGame(id, reviewsAttributes) {
-    //     //Review.game_id = id;
-    //     let reviews = reviewsAttributes.map(reviewAttributes => new Review(reviewAttributes));
-    //     Review.collection[id] = reviews;
-    //     let rendered = reviews.map(review => review.render())
-    //     Review.container().innerHTML = "";
-    //     Review.container().append(...rendered)
-    // }
 
     static create(formData) {
         return fetch("http://localhost:3000/reviews", {

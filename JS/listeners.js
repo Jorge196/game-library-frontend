@@ -5,16 +5,13 @@ document.addEventListener('click', function(e) {
         let p = target.nextElementSibling;
         if(target.textContent == "Show More") {
             Review.show(target.dataset.gameId);
-            // Flip the direction of showing
             target.textContent = "Show Less";
             p.classList.replace('max-h-4', 'max-h-screen')
         } else if (target.textContent == "Show Less") {
             Review.clear(target.dataset.gameId);
-             // Flip the direction of showing
              target.textContent = "Show More";
              p.classList.replace('max-h-screen', 'max-h-4')  
         } 
-        // Show all the reviews
         
     } else if (target.matches(".editReview")) {
         let review = Review.findReviewById(+target.dataset.reviewId);
@@ -53,7 +50,5 @@ document.addEventListener('submit', function(e) {
             .then(() => Modal.toggle());
     }
 });
-
-
 
 user_name = "";
