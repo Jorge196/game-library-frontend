@@ -129,8 +129,7 @@ class Review {
             }
         })
         .then(reviewData => {
-            let review = new Review(reviewData) 
-            console.log(review);   
+            let review = new Review(reviewData)    
             Review.collection.push(review);
             let rendered = review.render();
             this.container(reviewData.game_id).appendChild(rendered);
@@ -234,7 +233,6 @@ class Review {
             }
         })
         .then(({id}) => {
-            debugger
             let index = Review.collection.findIndex(review => review.id == id)
             Review.collection.splice(index, 1);
             this.element.remove();
