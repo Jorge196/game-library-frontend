@@ -26,6 +26,11 @@ document.addEventListener('click', function(e) {
 })
 
 document.addEventListener('DOMContentLoaded', function(e) {
+    const selectElement = document.querySelector('#Rating')
+    selectElement.addEventListener('change', (event) => {
+        console.log(event.target.value)
+        Game.collection.filter()
+    })
     user_name = prompt("What's your name?");
     document.getElementById('Greeting').innerText = "Hello "+ user_name;
     Game.all();
@@ -52,3 +57,4 @@ document.addEventListener('submit', function(e) {
 });
 
 user_name = "";
+
