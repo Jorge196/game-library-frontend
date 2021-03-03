@@ -22,7 +22,7 @@ document.addEventListener('click', function(e) {
             let review = Review.findReviewById(+target.dataset.reviewId);
             review.delete();
         }
-    }  
+    } 
 })
 
 document.addEventListener('DOMContentLoaded', function(e) {
