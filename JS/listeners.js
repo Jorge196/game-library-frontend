@@ -26,6 +26,7 @@ document.addEventListener('click', function(e) {
 })
 
 document.addEventListener('DOMContentLoaded', function(e) {
+    const 
     user_name = prompt("What's your name?");
     document.getElementById('Greeting').innerText = "Hello "+ user_name;
     Game.all();
@@ -48,7 +49,7 @@ document.addEventListener('submit', function(e) {
         let review = Review.findReviewById(target.dataset.reviewId);
         review.update(target.serialize())
             .then(() => Modal.toggle());
-    }
+    } 
 });
 
 user_name = "";
