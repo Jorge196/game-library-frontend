@@ -22,11 +22,42 @@ document.addEventListener('click', function(e) {
             let review = Review.findReviewById(+target.dataset.reviewId);
             review.delete();
         }
-    } 
+    } else if (target.matches("#Name")) {
+        const gamesSorted = Game.collection.sort(function(a, b) {
+            if(a.name < b.name)
+            return -1;
+
+            if (a.name > b.name)
+            return 1;
+
+            return 0;
+        });
+        Game.container().innerHTML = ''
+        gamesSorted.map(game => {
+        Game.container().appendChild(game.render())
+        })
+    }
 })
 
 document.addEventListener('DOMContentLoaded', function(e) {
-    const 
+    const selectElement = document.querySelector('#Rating')
+    selectElement.addEventListener('change', (event) => {
+        const selection = event.target.value;
+        if(selection == 'All'){
+            Game.container().innerHTML = ''
+            Game.collection.map(game => {
+            Game.container().appendChild(game.render())
+            })   
+        } else{
+            const gamesRated = Game.collection.filter((game) => game.rating == selection);
+            Game.container().innerHTML = ''
+            gamesRated.map(game => {
+            Game.container().appendChild(game.render())
+            })   
+        }
+    });
+    
+
     user_name = prompt("What's your name?");
     document.getElementById('Greeting').innerText = "Hello "+ user_name;
     Game.all();
@@ -49,7 +80,25 @@ document.addEventListener('submit', function(e) {
         let review = Review.findReviewById(target.dataset.reviewId);
         review.update(target.serialize())
             .then(() => Modal.toggle());
-    } 
+    } else if(target.matches('.RatingSearch')) {
+        e.preventDefault();
+        searchElement = document.getElementById('searchBar')
+        searchElement.addEventListener('keyup', (event) => {
+            const search = event.target.value
+            if (search == ''){
+                Game.container().innerHTML = ''
+                Game.collection.map(game => {
+                Game.container().appendChild(game.render())
+                })   
+            } else {
+                const gameSearch = Game.collection.filter((game) => game.rating == search);
+                Game.container().innerHTML = ''
+                gameSearch.map(game => {
+                Game.container().appendChild(game.render())
+                })
+            }
+        })
+    }
 });
 
 user_name = "";
