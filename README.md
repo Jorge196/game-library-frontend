@@ -1,4 +1,6 @@
-INSTALLATION
-``
-    After forking and cloning the Repo of both the frontend and the backend, you must run `bundle install` in the terminal. 
-`` 
+## Installation
+    After forking and cloning the Repo of both the frontend and the backend, you must run ``bundle install`` in the terminal. 
+
+## Using the App
+    In order to successfully start the application, you must first run ```rails s``` in the console of the backend directory. On the frontend directory, you run ```explorer.exe index.html``` and the app should appear in your browser.
+
