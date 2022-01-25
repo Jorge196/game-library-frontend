@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     });
     
 
-    user_name = prompt("What's your name?");
+    user_name = prompt("What's your email?");
     document.getElementById('Greeting').innerText = "Hello "+ user_name;
     Game.all();
     Modal.init();
